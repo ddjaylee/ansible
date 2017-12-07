@@ -1,6 +1,6 @@
 # ansible
 # NTP
-1. ntp status 
+1. ntp status
   a. is it running 
   b. is it installed
   c. is it configured correctly
