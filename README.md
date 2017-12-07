@@ -7,4 +7,4 @@
 #2. update/setup  ntp config 
 #	a. different location  
 #	c. different OS 
-#3. start/stop/restart   
+#3. start/stop/restart
