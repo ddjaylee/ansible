@@ -1,0 +1,60 @@
+# required variables - user id, user name, group id, group name, team owner
+# longer than 8 chars of userid is not allowed  for HPUX 
+- hosts: lab 
+  gather_facts: yes
+  vars:
+     tgrp: tgrp
+     tgid: 1111
+     tusr: tuser
+     tuid: 1111
+     tusrdesc: ' test user'
+     tsshkey: './usr-key'
+     tsudocmd: 'Cmnd_Alias TUSER_CMD = /usr/cat' 
+     tsudousr: '{{tusr}} {{ansible_hostname}}=(root) NOPASSWD: TUSER_CMD'
+  var_files:
+     - vars/authorized_keys
+ tasks: 
+ - name: create group
+   group:
+     name: "{{ tgrp }}" 
+     gid: "{{ tgid }}"
+     state: present
+
+ - name: add user id
+   user: 
+     name: "{{ tusr }}"
+     uid: "{{ tuid }}"  
+     comment: "{{ tusrdesc }}"
+     expries: no 
+     group: "{{ tgrp }}"
+     home: /home/{{ tusr }}
+     state: present
+
+ - name: create .ssh directory
+   file:
+     name: /home/{{ tusr }}/.ssh
+     state: directory
+     mode: 0700
+     owner: "{{ tusr }}"
+     group: "{{ tgrp }}"
+   when: tsshkey is defined
+
+- name: copy authorized_key
+  copy: 
+    src: "{{ tsshkey }}"
+    dest: /home/{{ tusr }}/.ssh/authorized_keys
+    owner: "{{ tusr }}"
+    group: "{{ tgrp }}"
+    mode: 0700
+  when: tsshkey is defined 
+
+- name: add sudoer
+  lineinfile:
+     path: /etc/sudoers
+     state: present
+     line: "{{ item}} "
+   with_items:
+    - '{{ tsudocmd }}'
+    - '{ tsudousr }}'
+   when: tsudousr is defined
+#    validate: 'visudo -c'
