@@ -8,9 +8,9 @@
      tusr: tuser
      tuid: 1111
      tusrdesc: ' test user'
-     tsshkey: './usr-key'
-     tsudocmd: 'Cmnd_Alias TUSER_CMD = /usr/cat' 
-     tsudousr: '{{tusr}} {{ansible_hostname}}=(root) NOPASSWD: TUSER_CMD'
+     tsshkey: './{{ usr }}.key'
+     tsudocmd: 'Cmnd_Alias {{ tusr|upper }}_CMD = /usr/cat' 
+     tsudousr: '{{tusr}} {{ansible_hostname}}=(root) NOPASSWD: {{ tusr|upper}}_CMD'
   var_files:
      - vars/authorized_keys
  tasks: 
@@ -53,8 +53,9 @@
      path: /etc/sudoers
      state: present
      line: "{{ item}} "
+     validate: 'visudo -c'
    with_items:
     - '{{ tsudocmd }}'
     - '{ tsudousr }}'
    when: tsudousr is defined
-#    validate: 'visudo -c'
+
